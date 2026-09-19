@@ -1,5 +1,7 @@
 from backend.domain.clinical_case import ClinicalCase, CaseStatus
 from backend.services.case_store import STORE
+from backend.services.evidence_service import ClinicalEvidenceService
+
 
 def normalize_case(case: ClinicalCase):
     case.normalized_data = {
@@ -17,14 +19,17 @@ def normalize_case(case: ClinicalCase):
     case.add_audit("clinical_normalization", "system")
     return case
 
+
 def triage_case(case: ClinicalCase):
     case.triage = {"red_flags": [], "urgency": "routine", "rule_version": "triage-mvp-1"}
     case.add_audit("triage_completed", "system", case.triage)
     return case
 
+
 def start_pipeline(case: ClinicalCase):
     case.transition(CaseStatus.PROCESSING)
     normalize_case(case)
     triage_case(case)
+    ClinicalEvidenceService().evaluate_case(case)
     STORE.save(case)
     return case
