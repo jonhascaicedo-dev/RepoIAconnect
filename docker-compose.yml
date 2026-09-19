@@ -1,0 +1,9 @@
+services:
+  medicheck:
+    build: .
+    container_name: medicheck
+    ports:
+      - "8000:8000"
+    environment:
+      PYTHONPATH: /app
+    restart: unless-stopped
