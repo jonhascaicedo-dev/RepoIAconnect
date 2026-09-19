@@ -3,10 +3,12 @@ from backend.main import app
 
 client = TestClient(app)
 
+
 def test_health():
     response = client.get("/health")
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
+
 
 def test_create_and_read_case():
     payload = {
@@ -21,7 +23,9 @@ def test_create_and_read_case():
     fetched = client.get(f"/api/cases/{case_id}")
     assert fetched.status_code == 200
     body = fetched.json()
-    assert body["status"] == "processing"
+    assert body["status"] == "ai_review"
     assert body["normalized_data"]["symptoms"][0]["normalized"] == "dolor de cabeza"
     assert body["triage"]["urgency"] == "not_assessed"
     assert body["triage"]["assessment_status"] == "pending_clinical_rules"
+    assert body["ai_metadata"]["synthetic"] is True
+    assert body["hypotheses"]
