@@ -19,6 +19,5 @@ class AIWorker:
             "hypothesis_count": len(hypotheses),
             "synthetic": bool(metadata.get("synthetic")),
         })
-        case.transition(CaseStatus.PROCESSING, actor="ai-worker")
         STORE.save(case)
         return case
