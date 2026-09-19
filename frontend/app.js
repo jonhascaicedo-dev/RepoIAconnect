@@ -4,6 +4,10 @@ const summary = document.getElementById('summary');
 const status = document.getElementById('status');
 const evidence = document.getElementById('evidence');
 
+const severityLabels = { mild: 'Leve', moderate: 'Moderada', severe: 'Fuerte' };
+const urgencyLabels = { not_assessed: 'Pendiente de evaluación clínica', routine: 'Rutina' };
+const processingLabels = { processing: 'Procesando consulta…', completed: 'Análisis completado', failed: 'Error de procesamiento' };
+
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>\"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#039;'}[ch]));
 }
@@ -11,7 +15,7 @@ function escapeHtml(value) {
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
   result.hidden = false;
-  status.textContent = 'Procesando...';
+  status.textContent = 'Procesando consulta…';
   summary.textContent = '';
   evidence.textContent = '';
 
@@ -45,14 +49,18 @@ form.addEventListener('submit', async (event) => {
     const detail = await detailResponse.json();
     if (!detailResponse.ok) throw new Error('No se pudo recuperar el caso');
 
-    status.textContent = `Estado: ${detail.status}`;
+    status.textContent = processingLabels[detail.status] || 'Estado del procesamiento: no disponible';
+    const symptomDetail = detail.symptoms[0] || {};
+    const examDetail = detail.examinations[0] || {};
+    const urgency = detail.triage?.urgency;
+
     summary.innerHTML = `
       <p><strong>Caso:</strong> ${escapeHtml(detail.id)}</p>
-      <p><strong>Síntoma:</strong> ${escapeHtml(detail.symptoms[0]?.name)}</p>
-      <p><strong>Intensidad:</strong> ${escapeHtml(detail.symptoms[0]?.severity || 'No indicada')}</p>
-      <p><strong>Duración:</strong> ${escapeHtml(detail.symptoms[0]?.duration || 'No indicada')}</p>
-      <p><strong>Examen:</strong> ${escapeHtml(detail.examinations[0]?.name || 'No indicado')} ${escapeHtml(detail.examinations[0]?.value || '')} ${escapeHtml(detail.examinations[0]?.unit || '')}</p>
-      <p><strong>Triaje:</strong> ${escapeHtml(detail.triage?.urgency || 'No disponible')}</p>`;
+      <p><strong>Síntoma:</strong> ${escapeHtml(symptomDetail.name)}</p>
+      <p><strong>Intensidad:</strong> ${escapeHtml(severityLabels[symptomDetail.severity] || 'No indicada')}</p>
+      <p><strong>Duración:</strong> ${escapeHtml(symptomDetail.duration || 'No indicada')}</p>
+      <p><strong>Examen:</strong> ${escapeHtml(examDetail.name || 'No indicado')} ${escapeHtml(examDetail.value || '')} ${escapeHtml(examDetail.unit || '')}</p>
+      <p><strong>Triaje:</strong> ${escapeHtml(urgencyLabels[urgency] || 'No disponible')}</p>`;
 
     evidence.innerHTML = detail.evidence?.map(item => `
       <article><strong>${escapeHtml(item.title)}</strong><br>
