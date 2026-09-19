@@ -1,6 +1,7 @@
 from backend.domain.clinical_case import ClinicalCase, CaseStatus
 from backend.services.case_store import STORE
 from backend.services.evidence_service import ClinicalEvidenceService
+from backend.ai.worker import AIWorker
 
 
 def normalize_case(case: ClinicalCase):
@@ -38,5 +39,6 @@ def start_pipeline(case: ClinicalCase):
     normalize_case(case)
     triage_case(case)
     ClinicalEvidenceService().evaluate_case(case)
+    AIWorker().process(case)
     STORE.save(case)
     return case
