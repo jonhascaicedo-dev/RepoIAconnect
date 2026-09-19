@@ -2,11 +2,12 @@ const form = document.getElementById('case-form');
 const result = document.getElementById('result');
 const summary = document.getElementById('summary');
 const status = document.getElementById('status');
+const hypotheses = document.getElementById('hypotheses');
 const evidence = document.getElementById('evidence');
 
 const severityLabels = { mild: 'Leve', moderate: 'Moderada', severe: 'Fuerte' };
-const urgencyLabels = { not_assessed: 'Pendiente de evaluación clínica', routine: 'Rutina' };
-const processingLabels = { processing: 'Procesando consulta…', completed: 'Análisis completado', failed: 'Error de procesamiento' };
+const urgencyLabels = { not_assessed: 'Pendiente de evaluación clínica' };
+const processingLabels = { processing: 'Procesando consulta…', ai_review: 'Análisis de IA en revisión…', completed: 'Análisis completado', failed: 'Error de procesamiento' };
 
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>\"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#039;'}[ch]));
@@ -17,6 +18,7 @@ form.addEventListener('submit', async (event) => {
   result.hidden = false;
   status.textContent = 'Procesando consulta…';
   summary.textContent = '';
+  hypotheses.textContent = '';
   evidence.textContent = '';
 
   const symptom = {
@@ -61,6 +63,11 @@ form.addEventListener('submit', async (event) => {
       <p><strong>Duración:</strong> ${escapeHtml(symptomDetail.duration || 'No indicada')}</p>
       <p><strong>Examen:</strong> ${escapeHtml(examDetail.name || 'No indicado')} ${escapeHtml(examDetail.value || '')} ${escapeHtml(examDetail.unit || '')}</p>
       <p><strong>Triaje:</strong> ${escapeHtml(urgencyLabels[urgency] || 'No disponible')}</p>`;
+
+    hypotheses.innerHTML = detail.hypotheses?.map(item => `
+      <article><strong>${escapeHtml(item.name)}</strong>
+      <p><strong>Confianza:</strong> No calculada en el proveedor sintético.</p>
+      <p><strong>Información faltante:</strong> ${escapeHtml((item.missing_information || []).join(', '))}</p></article>`).join('') || '<p>No hay hipótesis disponibles.</p>';
 
     evidence.innerHTML = detail.evidence?.map(item => `
       <article><strong>${escapeHtml(item.title)}</strong><br>
