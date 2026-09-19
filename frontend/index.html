@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>MediCheck v1.8</title>
+  <link rel="stylesheet" href="/frontend/styles.css">
+</head>
+<body>
+  <main class="container">
+    <h1>MediCheck</h1>
+    <p class="notice">Prototipo de evaluación. No sustituye una valoración médica profesional.</p>
+    <form id="case-form">
+      <label>Identificador de prueba<input id="patient-id" value="demo-patient" required></label>
+      <label>Síntomas<textarea id="symptoms" required placeholder="Ej.: dolor de cabeza, fiebre"></textarea></label>
+      <label>Exámenes<textarea id="examinations" placeholder="Ej.: hemoglobina=13.2 g/dL"></textarea></label>
+      <button type="submit">Procesar consulta</button>
+    </form>
+    <section id="result" hidden>
+      <h2>Resultado técnico</h2>
+      <pre id="output"></pre>
+    </section>
+  </main>
+  <script src="/frontend/app.js"></script>
+</body>
+</html>
