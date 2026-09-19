@@ -23,3 +23,5 @@ def test_create_and_read_case():
     body = fetched.json()
     assert body["status"] == "processing"
     assert body["normalized_data"]["symptoms"][0]["normalized"] == "dolor de cabeza"
+    assert body["triage"]["urgency"] == "not_assessed"
+    assert body["triage"]["assessment_status"] == "pending_clinical_rules"
