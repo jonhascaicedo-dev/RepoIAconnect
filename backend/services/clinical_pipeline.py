@@ -21,7 +21,14 @@ def normalize_case(case: ClinicalCase):
 
 
 def triage_case(case: ClinicalCase):
-    case.triage = {"red_flags": [], "urgency": "routine", "rule_version": "triage-mvp-1"}
+    # Until a clinically reviewed red-flag ruleset exists, do not infer urgency
+    # from symptom severity or from the presence of an examination.
+    case.triage = {
+        "red_flags": [],
+        "urgency": "not_assessed",
+        "assessment_status": "pending_clinical_rules",
+        "rule_version": "triage-mvp-2"
+    }
     case.add_audit("triage_completed", "system", case.triage)
     return case
 
