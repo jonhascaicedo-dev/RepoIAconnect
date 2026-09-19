@@ -18,7 +18,7 @@ def test_ai_worker_records_audit_and_metadata():
     case = ClinicalCase(patient_id="demo", symptoms=[Symptom(name="dolor de cabeza")])
     case.normalized_data = {"symptoms": [{"original": "dolor de cabeza", "normalized": "dolor de cabeza"}]}
     processed = AIWorker().process(case)
-    assert processed.status.value == "processing"
+    assert processed.status.value == "ai_review"
     assert processed.ai_metadata["synthetic"] is True
     assert processed.hypotheses
     assert any(item["event"] == "ai_analysis_completed" for item in processed.audit)
