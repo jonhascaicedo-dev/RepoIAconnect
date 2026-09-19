@@ -3,22 +3,53 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>MediCheck v1.8</title>
+  <title>MediCheck v1.8.1</title>
   <link rel="stylesheet" href="/frontend/styles.css">
 </head>
 <body>
   <main class="container">
     <h1>MediCheck</h1>
     <p class="notice">Prototipo de evaluación. No sustituye una valoración médica profesional.</p>
+
     <form id="case-form">
-      <label>Identificador de prueba<input id="patient-id" value="demo-patient" required></label>
-      <label>Síntomas<textarea id="symptoms" required placeholder="Ej.: dolor de cabeza, fiebre"></textarea></label>
-      <label>Exámenes<textarea id="examinations" placeholder="Ej.: hemoglobina=13.2 g/dL"></textarea></label>
+      <label>Identificador de prueba
+        <input id="patient-id" value="demo-patient" required>
+      </label>
+
+      <label>Síntoma
+        <input id="symptom-name" placeholder="Ej.: dolor de cabeza" required>
+      </label>
+      <label>Intensidad
+        <select id="symptom-severity">
+          <option value="">No indicada</option>
+          <option value="mild">Leve</option>
+          <option value="moderate">Moderada</option>
+          <option value="severe">Fuerte</option>
+        </select>
+      </label>
+      <label>Duración
+        <input id="symptom-duration" placeholder="Ej.: 2 días">
+      </label>
+
+      <label>Examen
+        <input id="exam-name" placeholder="Ej.: hemoglobina">
+      </label>
+      <label>Resultado
+        <input id="exam-value" placeholder="Ej.: 13.2">
+      </label>
+      <label>Unidad
+        <input id="exam-unit" placeholder="Ej.: g/dL">
+      </label>
+
       <button type="submit">Procesar consulta</button>
     </form>
+
     <section id="result" hidden>
-      <h2>Resultado técnico</h2>
-      <pre id="output"></pre>
+      <h2>Resumen de la consulta</h2>
+      <div id="summary"></div>
+      <p id="status"></p>
+      <h3>Evidencia recuperada</h3>
+      <div id="evidence"></div>
     </section>
   </main>
   <script src="/frontend/app.js"></script>
