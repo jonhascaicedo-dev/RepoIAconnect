@@ -52,13 +52,11 @@ def gateway(payload: dict):
         "supporting_evidence, contradicting_evidence y missing_information."
     )
     user_prompt = _build_prompt(normalized_data, evidence)
+    interaction_input = system_prompt + "\n\nDATOS DE ENTRADA:\n" + user_prompt
 
     request_payload = {
         "model": model,
-        "input": [
-            {"role": "system", "content": [{"type": "text", "text": system_prompt}]},
-            {"role": "user", "content": [{"type": "text", "text": user_prompt}]},
-        ],
+        "input": interaction_input,
         "store": False,
     }
 
@@ -75,14 +73,17 @@ def gateway(payload: dict):
     try:
         with urlopen(request, timeout=60) as response:
             body = json.loads(response.read().decode("utf-8"))
-        outputs = body.get("outputs", [])
-        text_parts = [
-            part.get("text", "")
-            for output in outputs
-            if isinstance(output, dict)
-            for part in output.get("content", [])
-            if isinstance(part, dict) and part.get("type") == "text"
-        ]
+
+        text_parts = []
+        for step in body.get("steps", []):
+            if not isinstance(step, dict):
+                continue
+            for content in step.get("content", []):
+                if isinstance(content, dict) and content.get("type") == "text":
+                    text = content.get("text", "")
+                    if text:
+                        text_parts.append(text)
+
         content = "".join(text_parts).strip()
         result = json.loads(content)
         if not isinstance(result, dict) or not isinstance(result.get("hypotheses"), list):
@@ -90,14 +91,18 @@ def gateway(payload: dict):
         return result
     except HTTPError as exc:
         status = exc.code
+        try:
+            provider_body = exc.read().decode("utf-8", errors="replace")
+        except Exception:
+            provider_body = ""
         if status == 401:
             detail = "Credencial de Gemini inválida"
         elif status == 429:
             detail = "Límite de solicitudes de Gemini alcanzado"
         elif 400 <= status < 500:
-            detail = f"Solicitud rechazada por Gemini (HTTP {status})"
+            detail = f"Solicitud rechazada por Gemini (HTTP {status}): {provider_body[:500]}"
         else:
-            detail = f"Error temporal de Gemini (HTTP {status})"
+            detail = f"Error temporal de Gemini (HTTP {status}): {provider_body[:500]}"
         raise HTTPException(status_code=status, detail=detail) from exc
     except (URLError, TimeoutError, socket.timeout) as exc:
         raise HTTPException(status_code=502, detail="No se pudo conectar con Gemini") from exc
