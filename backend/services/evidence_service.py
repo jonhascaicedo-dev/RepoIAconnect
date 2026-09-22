@@ -1,9 +1,10 @@
 from backend.evidence.engine import EvidenceEngine
-from backend.evidence.provider import MockEvidenceProvider
+from backend.evidence.provider import PubMedEvidenceProvider
+
 
 class ClinicalEvidenceService:
     def __init__(self, engine=None):
-        self.engine = engine or EvidenceEngine(MockEvidenceProvider())
+        self.engine = engine or EvidenceEngine(PubMedEvidenceProvider())
 
     def evaluate_case(self, case):
         query, evidence = self.engine.search(case.normalized_data)
